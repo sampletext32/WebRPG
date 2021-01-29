@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.Logging;
 using WebRPG.Services;
@@ -29,7 +31,11 @@ namespace WebRPG.Filters
                 }
             }
 
-            httpContext.Response.Redirect("/login");
+            httpContext.Response.Cookies.Append("returnUrl", httpContext.Request.Path);
+
+            context.Result = new RedirectToActionResult("Index", "Login", null);
+
+            // httpContext.Response.Redirect("/login");
         }
     }
 }

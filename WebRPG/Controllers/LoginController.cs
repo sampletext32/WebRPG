@@ -1,8 +1,10 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿#nullable enable
+using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using WebRPG.ActionResults;
 using WebRPG.Services;
 
 namespace WebRPG.Controllers
@@ -18,19 +20,28 @@ namespace WebRPG.Controllers
         }
 
         [HttpGet]
-        public IActionResult Index()
+        public IActionResult Index(string? returnUrl)
         {
-            return Ok("Login page");
+            return new HtmlResult(
+                $@"<form action=""./login/auth"" method=""get"">
+                    <input type=""submit"" value=""Auth""/>
+                </form>"
+            );
         }
 
         [HttpGet]
         public IActionResult Auth()
         {
+            if (HttpContext.Request.Cookies.TryGetValue("returnUrl", out var returnUrl))
+            {
+                HttpContext.Response.Cookies.Delete("returnUrl");
+            }
+
             if (HttpContext.Request.Cookies.TryGetValue("token", out var tokenId))
             {
                 if (_tokenService.Check(tokenId))
                 {
-                    return Ok("Already have a token: " + tokenId);
+                    return Redirect(!string.IsNullOrEmpty(returnUrl) ? returnUrl : "/test");
                 }
 
                 HttpContext.Response.Cookies.Delete("token");
@@ -38,7 +49,7 @@ namespace WebRPG.Controllers
 
             var token = _tokenService.Create();
             HttpContext.Response.Cookies.Append("token", token);
-            return Ok(token);
+            return Redirect(!string.IsNullOrEmpty(returnUrl) ? returnUrl : "/test");
         }
     }
 }

@@ -9,7 +9,7 @@ namespace WebRPG.Controllers
         [TypeFilter(typeof(CheckToken))]
         public IActionResult Index()
         {
-            return Ok("Index");
+            return Ok("I'm logined");
         }
     }
 }
